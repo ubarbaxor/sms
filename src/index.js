@@ -1,14 +1,40 @@
-const twilio = require('twilio')
+const db = require('./helpers/db')
 
-const Sms = text => ( new twilio.TwimlResponse().message(text).toString() )
+const responses = {
+  default: `Hello !
 
-const service = (req, res) => {
-  console.log(req.url)
+Thanks for texting us =)
+We are still in (very) early alpha, and you are welcome to take a sneak peek.
+We'd love to hear your feedback !
 
-  const content = Sms('Coucou ca marche !')
-  res.statusCode = 200
-  res.setHeader('Content-Type', 'text/xml')
-  res.end(content)
+Disclaimer : bugs are to be expected.
+Try not to break anything.
+
+[register, feedback, help]`
 }
 
-module.exports = service
+const parse = msg => {
+  let split = msg.Body.split(' ')
+  let verb = split[0].toLowerCase()
+  let rest = split.slice(1)
+
+  if (verb === 'register') {
+    db.users.get( msg.From )
+      .then( results => results.toArray() )
+      .then( arr => arr.length
+        ? 'Already registerd.'
+        :  'Not yet available.')
+  }
+}
+
+const route = (req, res) => {
+  const msg = req.body
+  console.log(`
+    Incoming message
+    From : ${msg.From}
+    Content : ${msg.Body}`)
+
+  res.sms( parse(msg) || responses.default )
+}
+
+module.exports = route

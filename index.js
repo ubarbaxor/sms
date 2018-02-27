@@ -1,8 +1,22 @@
 const http = require('http')
-const service = require('./src/')
+const express = require('express')
+const bodyParser = require('body-parser')
 
-const PORT = 8765
+// server config
+const config = {
+  host: 'localhost',
+  port: 8765,
+}
+
+// Build service and include middleware tools
+const service = express()
+service.use( bodyParser.urlencoded({ extended: false }) )
+service.use( require('./src/middleware/twilio') )
+
+// Register routes
+service.use( require('./src') )
 
 const srv = http.createServer(service)
 
-srv.listen(8765, 'localhost', () => console.log(`Listening on ${PORT}`))
+srv.listen(config.port, config.host, err => console.log(
+  err || `Listening with :`, config))

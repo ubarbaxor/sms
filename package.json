@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/ubarbaxor/sms#readme",
   "dependencies": {
+    "express": "^4.15.2",
+    "mongodb": "^2.2.26",
     "twilio": "^2.11.1"
   }
 }
